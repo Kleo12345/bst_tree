@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+
 using namespace std;
 
 class Node {
@@ -59,7 +61,7 @@ public:
                 current = current->getRight();
             }
         }
-        return node;
+        return node; 
     }
 
     Node* insertRecursive(Node* node, int value) {
@@ -67,63 +69,11 @@ public:
             return new Node(value);
         }
         if (value < node->getData()) {
-            node->setLeft(this->insertRecursive(node->getLeft(), value));
+            node->setLeft(insertRecursive(node->getLeft(), value));
         } else if (value > node->getData()) {
-            node->setRight(this->insertRecursive(node->getRight(), value));
+            node->setRight(insertRecursive(node->getRight(), value));
         }
         return node;
-    }
-
-    bool searchIterative(Node* node, int value) {
-        while (node != nullptr) {
-            if (value == node->getData()) {
-                return true;
-            }
-            if (value < node->getData()) {
-                node = node->getLeft();
-            } else {
-                node = node->getRight();
-            }
-        }
-        return false;
-    }
-
-    bool searchRecursive(Node* node, int value) {
-        if (node == nullptr) {
-            return false;
-        }
-        if (value == node->getData()) {
-            return true;
-        }
-        if (value < node->getData()) {
-            return this->searchRecursive(node->getLeft(), value);
-        } else {
-            return this->searchRecursive(node->getRight(), value);
-        }
-    }
-
-    void preOrderTraversal(Node* node) {
-        if (node != nullptr) {
-            cout << node->getData() << " ";
-            this->preOrderTraversal(node->getLeft());
-            this->preOrderTraversal(node->getRight());
-        }
-    }
-
-    void inOrderTraversal(Node* node) {
-        if (node != nullptr) {
-            this->inOrderTraversal(node->getLeft());
-            cout << node->getData() << " ";
-            this->inOrderTraversal(node->getRight());
-        }
-    }
-
-    void postOrderTraversal(Node* node) {
-        if (node != nullptr) {
-            this->postOrderTraversal(node->getLeft());
-            this->postOrderTraversal(node->getRight());
-            cout << node->getData() << " ";
-        }
     }
 
     Node* deleteNode(Node* node, int value) {
@@ -131,9 +81,9 @@ public:
             return node;
         }
         if (value < node->getData()) {
-            node->setLeft(this->deleteNode(node->getLeft(), value));
+            node->setLeft(deleteNode(node->getLeft(), value));
         } else if (value > node->getData()) {
-            node->setRight(this->deleteNode(node->getRight(), value));
+            node->setRight(deleteNode(node->getRight(), value));
         } else {
             if (node->getLeft() == nullptr) {
                 Node* temp = node->getRight();
@@ -144,31 +94,69 @@ public:
                 delete node;
                 return temp;
             }
-            Node* temp = this->minValueNode(node->getRight());
-            node->setData(temp->getData());
-            node->setRight(this->deleteNode(node->getRight(), temp->getData()));
         }
         return node;
     }
 
-    Node* minValueNode(Node* node) {
-        Node* current = node;
-        while (current && current->getLeft() != nullptr) {
-            current = current->getLeft();
+    void inOrder(Node* node) {
+        if (node != nullptr) {
+            inOrder(node->getLeft());
+            cout << node->getData() << " ";
+            inOrder(node->getRight());
         }
-        return current;
     }
 
-    bool isBST(Node* node, Node* min = nullptr, Node* max = nullptr) {
+    void searchRecursive(Node* node, int value) {
         if (node == nullptr) {
+            cout << "Element not found" << endl;
+            return;
+        }
+        if (value == node->getData()) {
+            cout << "Element found" << endl;
+            return;
+        }
+        if (value < node->getData()) {
+            searchRecursive(node->getLeft(), value);
+        } else {
+            searchRecursive(node->getRight(), value);
+        }
+    }
+
+    Node* searchIterative(Node* node, int value) {
+        while (node != nullptr) {
+            if (value == node->getData()) {
+                return node;
+            }
+            if (value < node->getData()) {
+                node = node->getLeft();
+            } else {
+                node = node->getRight();
+            }
+        }
+        return nullptr;
+    }
+
+    bool isBST(Node* value, Node* min = nullptr, Node* max = nullptr) {
+        if (value == nullptr) {
             return true;
         }
-        if ((min != nullptr && node->getData() <= min->getData()) ||
-            (max != nullptr && node->getData() > max->getData())) {
+        if ((min != nullptr && value->getData() <= min->getData()) || (max != nullptr && value->getData() > max->getData())) {
             return false;
         }
-        return this->isBST(node->getLeft(), min, node) &&
-               this->isBST(node->getRight(), node, max);
+        return isBST(value->getLeft(), min, value) && isBST(value->getRight(), max, value);
+    }
+
+    bool searchI(int k) { 
+        return searchIterative(this, k) != nullptr;
+    }
+
+    bool searchR(int k) { 
+        Node* result = searchIterative(this, k);
+        return result != nullptr;
+    }
+
+    Node* insertI(int k) {
+        return insertIterative(this, k);
     }
 };
 
@@ -179,26 +167,16 @@ int main() {
     root = root->insertIterative(root, 20);
     root = root->insertRecursive(root, 40);
 
-    cout << "InOrder: ";
-    root->inOrderTraversal(root);
+    cout << "inOrder traversal: ";
+    root->inOrder(root);
     cout << endl;
 
-    cout << "PreOrder: ";
-    root->preOrderTraversal(root);
-    cout << endl;
+    cout << "searching for 30 iteratively: " << (root->searchI(30) ? "Found" : "Not Found") << endl;
+    cout << "searching for 100 recursively: " << (root->searchR(100) ? "Found" : "Not Found") << endl;
 
-    cout << "PostOrder: ";
-    root->postOrderTraversal(root);
-    cout << endl;
-
-    cout << "Is BST: " << (root->isBST(root) ? "Yes" : "No") << endl;
-
-    cout << "Search Recursive for 30: " << (root->searchRecursive(root, 30) ? "Found" : "Not Found") << endl;
-    cout << "Search Iterative for 25: " << (root->searchIterative(root, 25) ? "Found" : "Not Found") << endl;
-
-    root = root->deleteNode(root, 30);
-    cout << "InOrder after deletion: ";
-    root->inOrderTraversal(root);
+    root = root->insertI(70);
+    cout << "after inserting 70, inorder traversal: ";
+    root->inOrder(root);
     cout << endl;
 
     return 0;
