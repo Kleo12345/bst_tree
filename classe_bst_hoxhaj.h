@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -15,7 +16,14 @@ public:
         this->left = nullptr;
         this->right = nullptr;
     }
-
+    friend ostream& operator<<(ostream& o,Node &node) {
+        o << node.data << endl;
+        return o;
+    }
+    friend istream& operator>>(istream&o2, Node &node) {
+        o2 >> node.data;
+        return o2;
+    }
     int getData() {
         return this->data;
     }
@@ -98,11 +106,27 @@ public:
         return node;
     }
 
-    void inOrder(Node* node) {
+        void inOrder(Node* node) {
         if (node != nullptr) {
             inOrder(node->getLeft());
             cout << node->getData() << " ";
             inOrder(node->getRight());
+        }
+    }
+
+    void preOrder(Node* node) {
+        if (node != nullptr) {
+            cout << node->getData() << " ";
+            preOrder(node->getLeft());
+            preOrder(node->getRight());
+        }
+    }
+
+    void postOrder(Node* node) {
+        if (node != nullptr) {
+            postOrder(node->getLeft());
+            postOrder(node->getRight());
+            cout << node->getData() << " ";
         }
     }
 
@@ -159,25 +183,3 @@ public:
         return insertIterative(this, k);
     }
 };
-
-int main() {
-    Node* root = nullptr;
-    root = root->insertIterative(root, 50);
-    root = root->insertRecursive(root, 30);
-    root = root->insertIterative(root, 20);
-    root = root->insertRecursive(root, 40);
-
-    cout << "inOrder traversal: ";
-    root->inOrder(root);
-    cout << endl;
-
-    cout << "searching for 30 iteratively: " << (root->searchI(30) ? "Found" : "Not Found") << endl;
-    cout << "searching for 100 recursively: " << (root->searchR(100) ? "Found" : "Not Found") << endl;
-
-    root = root->insertI(70);
-    cout << "after inserting 70, inorder traversal: ";
-    root->inOrder(root);
-    cout << endl;
-
-    return 0;
-}
